@@ -16,7 +16,7 @@ get_percent() {
 	#normalize_padding "$memory_percent%"
         ;;
     Darwin)
-        used_mem=$(vm_stat | grep ' active\|wired ' | sed 's/[^0-9]//g' | paste -sd ' ' - | awk -v pagesize=$(pagesize) '{printf "%d\n", ($1+$2) * pagesize / 1048576}')
+        used_mem=$(vm_stat | grep ' active\|wired ' | sed 's/[^0-9]//g' | paste -sd ' ' - | awk -v pagesize=$(pagesize) '{printf "%.2f\n", ($1+$2) * pagesize / 1048576}')
         total_mem=$(system_profiler SPHardwareDataType | grep "Memory:" | awk '{print $2}')
        	memory_percent="${used_mem}GB/${total_mem}GB"
 	normalize_padding "$memory_percent"
