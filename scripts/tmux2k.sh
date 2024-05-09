@@ -12,6 +12,8 @@ l_sep=$(get_tmux_option "@tmux2k-left-sep" )
 r_sep=$(get_tmux_option "@tmux2k-right-sep" )
 wl_sep=$(get_tmux_option "@tmux2k-window-left-sep" )
 wr_sep=$(get_tmux_option "@tmux2k-window-right-sep" )
+
+
 show_flags=$(get_tmux_option "@tmux2k-show-flags" true)
 IFS=' ' read -r -a lplugins <<<"$(get_tmux_option '@tmux2k-left-plugins' 'git cpu ram')"
 IFS=' ' read -r -a rplugins <<<"$(get_tmux_option '@tmux2k-right-plugins' 'battery network time')"
@@ -35,7 +37,16 @@ light_yellow=$(get_tmux_option "@tmux2k-light-yellow" '#ffd21a')
 purple=$(get_tmux_option "@tmux2k-purple" '#bf58ff')
 light_purple=$(get_tmux_option "@tmux2k-light-purple" '#ff65c6')
 
+# Set TMUX mode color dynamically based on mode
+custom_color=""
+prefix_color="blue"
+copy_color="yellow"
+sync_color="red"
+empty_color="cyan"
+mode_color="#{?#{!=:$custom_color,},#[$custom_color],#{?client_prefix,$prefix_color,#{?pane_in_mode,$copy_color,#{?pane_synchronized,$sync_color,$empty_color}}}}"
+
 declare -A plugin_colors=(
+    ["mode_indicator"]="mode_color text"
     ["git"]="green text"
     ["cpu"]="blue text"
     ["ram"]="light_yellow text"
@@ -151,6 +162,7 @@ set_theme() {
         show_powerline=false
         text=$bg_main
         plugin_colors=(
+	    ["mode_indicator"]="text mode_color"
             ["git"]="text green"
             ["cpu"]="text blue"
             ["ram"]="text light_yellow"
@@ -177,7 +189,7 @@ set_options() {
     tmux set-option -g pane-border-style "fg=${bg_main}"
     tmux set-option -g message-style "bg=${bg_main},fg=${blue}"
     tmux set-option -g status-style "bg=${bg_main},fg=${white}"
-    tmux set -g status-justify absolute-centre
+    tmux set -g status-justify centre
 
     tmux set-window-option -g window-status-activity-style "bold"
     tmux set-window-option -g window-status-bell-style "bold"
@@ -253,6 +265,7 @@ window_list() {
     if $show_powerline; then
         tmux set-window-option -g window-status-current-format \
             "#[fg=${wfg},bg=${wbg}]${wl_sep}#[bg=${wfg}]${current_flags}#[fg=${wbg}]${spacer}#I:#W${spacer}#[fg=${wfg},bg=${wbg}]${wr_sep}"
+        
         tmux set-window-option -g window-status-format \
             "#[fg=${bg_alt},bg=${wbg}]${wl_sep}#[bg=${bg_alt}]${flags}#[fg=${white}]${spacer}#I:#W${spacer}#[fg=${bg_alt},bg=${wbg}]${wr_sep}"
     else
